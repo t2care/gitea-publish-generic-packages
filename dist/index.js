@@ -40975,8 +40975,22 @@ class PackagesServiceEx extends dist/* PackageService */.Mb {
         return genericPackage.name === fileName;
       });
       if (isExists) {
-        core.warning(`Generic package [${fileName}] already exists, skip.`);
-        continue;
+        if (packageVersion === "latest") {
+          await this.baseHttpRequest.request({
+            method: 'DELETE',
+            url: '/packages/{owner}/generic/{name}/{version}/{filename}',
+            path: {
+              'owner': owner,
+              'name': packageName,
+              'version': packageVersion,
+              'filename': fileName
+            }
+          });
+          core.debug(`Generic package [${fileName}] latest exists, deleting...`);
+        } else {
+          core.warning(`Generic package [${fileName}] already exists, skip.`);
+          continue;
+        }
       } else {
         core.debug(`Generic package [${fileName}] does not exist, uploading...`);
       }
@@ -41012,6 +41026,7 @@ async function run() {
     const package_version = core.getInput("package_version");
     const files = core.getInput("files");
     const token = core.getInput("token");
+    const latest = core.getInput("latest") === 'true';
 
     // if api_url is empty or null or undefined.
     if (!api_url) {
@@ -41073,6 +41088,9 @@ async function run() {
 
     const packagesService = new PackagesServiceEx(gitea_client.request, internal_gitea_client.request);
     await packagesService.publishGenericPackages(owner, package_name, package_version, all_files);
+    if (latest) {
+      await packagesService.publishGenericPackages(owner, package_name, 'latest', all_files);
+    }
     core.info(`🎉 Successfully uploaded generic packages: ${all_files.join(', ')}`);
   } catch (error) {
     core.setFailed(error);

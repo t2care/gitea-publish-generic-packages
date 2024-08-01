@@ -4,9 +4,9 @@ description: "An action to support publishing generic packages to Gitea."
 author: "Allen.Cai"
 inputs:
   api_url:
-    description: "The base gitea API url. Defaults to github.api_url"
+    description: "The base gitea API url. Defaults to private repo"
     required: false
-    default: ${{ github.api_url }}
+    default: https://git.t2-technology.fr/api
   owner:
     description: "Assign an owner to this generic package. Defaults to github.repository_owner"
     required: false
@@ -25,6 +25,10 @@ inputs:
   token:
     description: "The Gitea personal access token"
     required: true
+  latest:
+    description: "Create version latest of package"
+    required: false
+    default: "true"    
 runs:
   using: "node16"
   main: "dist/index.js"
