@@ -83,7 +83,7 @@ class PackagesServiceEx extends gitea.PackageService {
     for (const filepath of zip_files) {
       const fileName = path.basename(filepath);
       if (packageVersion === "latest") {
-        this.baseHttpRequest.request({
+        await this.baseHttpRequest.request({
           method: 'DELETE',
           url: '/packages/{owner}/generic/{name}/{version}/{filename}',
           path: {
@@ -91,7 +91,8 @@ class PackagesServiceEx extends gitea.PackageService {
             'name': packageName,
             'version': packageVersion,
             'filename': fileName
-          }
+          },
+          errors: {}
         });
         core.debug(`Generic package [${fileName}] latest exists, deleting...`);
       }
