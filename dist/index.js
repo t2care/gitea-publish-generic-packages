@@ -41016,7 +41016,7 @@ class PackagesServiceEx extends dist/* PackageService */.Mb {
           409: `A file with the same name exist already in the package.`
         }
       });
-      core.debug(`Successfully uploaded generic package ${filepath}`);
+      core.debug(`Successfully uploaded generic package ${filepath}, version ${packageVersion}`);
     }
   }
 }
