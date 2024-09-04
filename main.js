@@ -83,7 +83,7 @@ class PackagesServiceEx extends gitea.PackageService {
     for (const filepath of zip_files) {
       const fileName = path.basename(filepath);
       if (packageVersion === "latest") {
-        await this.baseHttpRequest.request({
+        this.baseHttpRequest.request({
           method: 'DELETE',
           url: '/packages/{owner}/generic/{name}/{version}/{filename}',
           path: {
