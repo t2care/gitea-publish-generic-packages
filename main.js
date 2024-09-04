@@ -82,29 +82,28 @@ class PackagesServiceEx extends gitea.PackageService {
 
     for (const filepath of zip_files) {
       const fileName = path.basename(filepath);
-
+      if (packageVersion === "latest") {
+        await this.baseHttpRequest.request({
+          method: 'DELETE',
+          url: '/packages/{owner}/generic/{name}/{version}/{filename}',
+          path: {
+            'owner': owner,
+            'name': packageName,
+            'version': packageVersion,
+            'filename': fileName
+          }
+        });
+        core.debug(`Generic package [${fileName}] latest exists, deleting...`);
+      }
       // Check if the file exists. If exists, skip.
       const isExists = Array.isArray(genericPackages) && genericPackages.length > 0 && genericPackages.some((genericPackage) => {
         return genericPackage.name === fileName;
       });
       if (isExists) {
-        if (packageVersion === "latest") {
-          await this.baseHttpRequest.request({
-            method: 'DELETE',
-            url: '/packages/{owner}/generic/{name}/{version}/{filename}',
-            path: {
-              'owner': owner,
-              'name': packageName,
-              'version': packageVersion,
-              'filename': fileName
-            }
-          });
-          core.debug(`Generic package [${fileName}] latest exists, deleting...`);
-        } else {
           core.warning(`Generic package [${fileName}] already exists, skip.`);
           continue;
         }
-      } else {
+      else {
         core.debug(`Generic package [${fileName}] does not exist, uploading...`);
       }
 
