@@ -40969,13 +40969,8 @@ class PackagesServiceEx extends dist/* PackageService */.Mb {
 
     for (const filepath of zip_files) {
       const fileName = external_path_.basename(filepath);
-
-      // Check if the file exists. If exists, skip.
-      const isExists = Array.isArray(genericPackages) && genericPackages.length > 0 && genericPackages.some((genericPackage) => {
-        return genericPackage.name === fileName;
-      });
-      if (isExists) {
-        if (packageVersion === "latest") {
+      if (packageVersion === "latest") {
+        try{
           await this.baseHttpRequest.request({
             method: 'DELETE',
             url: '/packages/{owner}/generic/{name}/{version}/{filename}',
@@ -40986,12 +40981,20 @@ class PackagesServiceEx extends dist/* PackageService */.Mb {
               'filename': fileName
             }
           });
-          core.debug(`Generic package [${fileName}] latest exists, deleting...`);
-        } else {
+        }catch(e){
+          core.warning(`Generic package [${fileName}-${packageVersion}] not found`);
+        }
+        core.debug(`Generic package [${fileName}] latest exists, deleting...`);
+      }
+      // Check if the file exists. If exists, skip.
+      const isExists = Array.isArray(genericPackages) && genericPackages.length > 0 && genericPackages.some((genericPackage) => {
+        return genericPackage.name === fileName;
+      });
+      if (isExists) {
           core.warning(`Generic package [${fileName}] already exists, skip.`);
           continue;
         }
-      } else {
+      else {
         core.debug(`Generic package [${fileName}] does not exist, uploading...`);
       }
 
@@ -41013,7 +41016,7 @@ class PackagesServiceEx extends dist/* PackageService */.Mb {
           409: `A file with the same name exist already in the package.`
         }
       });
-      core.debug(`Successfully uploaded generic package ${filepath}`);
+      core.debug(`Successfully uploaded generic package ${filepath}, version ${packageVersion}`);
     }
   }
 }
